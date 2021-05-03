@@ -28,6 +28,16 @@ def prob_seq(seq, p_gc):
     return reduce(operator.mul, ps, 1)
 
 
+def get_shuffled_genome(filename):
+    """Write a shuffled version of the sequence to a FASTA file."""
+    for name, sequence in parse_fasta(filename):
+        name = name.replace(',', ' ').split(' ')
+        name = '_'.join(name[:4])
+        seq = list(sequence.upper())
+        random.shuffle(seq)
+        return name, ''.join(seq)
+
+    
 def translate_chars(s, chars, targets):
     # make a dictionary and use it
     # ex: translate_chars('mississipi',['i','s'],['e','t']) -> mettettepe
