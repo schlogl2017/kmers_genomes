@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
 import os
-import sys
 import gzip
-import time
 import argparse
 import random
 import textwrap
-from fasta_parser import parse_fasta
+from fasta_parser import parse_fasta, str_punctuation_strip
 from sequence_utils import get_name_fasta
 from system_utils import get_fasta, make_me_a_folder, get_full_name, get_species_name
 
@@ -24,7 +22,7 @@ def parse_arguments():
                         type=str,
                         required=True,
                         dest='dir_name',
-                        help='directory name. Eg. Data')
+                        help='directory name. Eg. Data')                  
     parser.add_argument('-ssd',
                         '--sub_sub_dir',
                         type=str,
@@ -52,19 +50,19 @@ def main():
     sub_sub_dir = opt.sub_sub_dir
     dir_out = opt.dir_out
     file_txt = opt.file_txt
-
+    
     spc_names = get_species_name(file_txt)
     filenames = list(get_fasta(spc_names, dir_name, sub_sub_dir))
-
+    
     cnt_files = 0
     for filename in filenames:
         print(f'Working with the file: {filename}\n')
         for name, seq in parse_fasta(filename):
             name = get_name_fasta(name)
             spc = name.split('_')[2]
-            seq_list = list(seq)
-            random.shuffle(seq_list)
-            sequence = ''.join(seq_list)
+            sequence = [seq[i:1+2] for i in range(0,len(seq),2)]
+            random.shuffle(sequence)
+            sequence = ''.join(sequence)
             cnt_files += 1
             dir_save = get_full_name(dir_out, spc, sub_sub_dir)
             print(f'Saving the schuffled genome at: {dir_save}\n')
@@ -74,13 +72,10 @@ def main():
                 make_me_a_folder(dir_save)
             with gzip.open(f'{dir_save}/{name}_shuffled.fna.gz', 'wt') as fout:
                 fout.write(f'>{name}_genome_shuffled\n')
-                fout.write(textwrap.fill(sequence, 80))
+                fout.write(textwrap.fill(seq, 80))
     end = time.process_time()
     total_time = end - start_time
     print(f'The script takes {total_time} to finish!')
     print(f'Where read and manipulated {cnt_files} files')
     print('Done!')
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+   

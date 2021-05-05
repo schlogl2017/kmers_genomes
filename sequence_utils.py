@@ -1,13 +1,13 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+import random
 import operator
 from functools import reduce
 from collections import defaultdict, Counter
 import matplotlib.pyplot as plt
 import numpy as np
-from fasta_parser import parse_fasta
+from fasta_parser import parse_fasta, str_punctuation_strip
 
 
 def prob_seq(seq, p_gc):
@@ -31,13 +31,13 @@ def prob_seq(seq, p_gc):
 def get_shuffled_genome(filename):
     """Write a shuffled version of the sequence to a FASTA file."""
     for name, sequence in parse_fasta(filename):
-        name = name.replace(',', ' ').split(' ')
+        name = name.replace(',', '').split(' ')
         name = '_'.join(name[:4])
         seq = list(sequence.upper())
-        random.shuffle(seq)
+        # random.shuffle(seq)
         return name, ''.join(seq)
 
-    
+
 def translate_chars(s, chars, targets):
     # make a dictionary and use it
     # ex: translate_chars('mississipi',['i','s'],['e','t']) -> mettettepe
@@ -276,3 +276,44 @@ def print_strand_stats(str_sta):
     print('   Total\tFor\tRev\tDif')
     for base, count in str_sta.items():
         print(f'{base}: {str(count[0])}\t{str(count[1])}\t{str(count[2])}\t{str(count[3])}')
+
+
+def get_name_fasta(name):
+    name = name.replace(',', ' ').split(' ')
+    name = '_'.join(name[:4])
+    return str_punctuation_strip(name)
+
+
+def weighted_choice(seq):
+    return random.choice(sum(([v] * wt for v, wt in seq), []))
+
+
+def difreq(seq):
+    """Return the count of the dinucleotides as a dictionary.
+    seq = "ababcdcdabdcabvababab"
+    difreq(seq)
+    {'a': {'b': 7}, ab =7
+    'b': {'a': 3, 'c': 1, 'd': 1, 'v': 1},
+    'c': {'d': 2, 'a': 1},
+    'd': {'c': 2, 'a': 1},dc =2, da =1
+    'v': {'a': 1}} va = 1
+    Ex. ab
+    """
+    counts = defaultdict(lambda: defaultdict(int))
+    for a, b in zip(seq, seq[1:]):
+        counts[a][b] += 1
+    return dict((k, dict(v)) for k, v in counts.items())
+
+
+def shuffle_difreq(seq):
+    freqs = difreq(seq)
+
+    # get the first base by the total frequency across the sequence
+    shuff_seq = [weighted_choice(Counter(seq).items())]
+
+    for i in range(1, len(seq)):
+        # each following base is based of the frequency of the previous base
+        # and their co-occurence in the original sequence.
+        shuff_seq.append(weighted_choice(freqs[shuff_seq[-1]].items()))
+
+    return "".join(shuff_seq)
