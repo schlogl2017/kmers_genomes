@@ -30,15 +30,13 @@ do
     echo "......................................................................."
     mkdir -p Genomes/$line
     cd Genomes/$line
-    ncbi-genome-download --verbose --genera $line --metadata-table data.tsv --format fasta -p $threads --retries 100 bacteria
+    ncbi-genome-download --verbose --genera $line -l 'complete,chromosome' --metadata-table data.tsv --format fasta -p $threads --retries 100 bacteria
 
     if test -n "$(find refseq/bacteria -name '*.fna.gz' -print -quit)"
         then
         for f in refseq/bacteria/*/*.fna.gz; do
             new_name=$(echo $f | grep -oP "\w{3}_\d{9}\.\d" | head -n 1)".fna.gz"
-            printf "\n"
             echo "mv "$f" "$new_name
-            printf "\n"
             mv $f $new_name
         done
         rm -r refseq
