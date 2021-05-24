@@ -50,8 +50,10 @@ def get_files_paths(dir_name, sub_dir_name):
     all_files = defaultdict(list)
     for name in spc_names:
         all_files[name] = all_files.get(name, [])
-        full_path = os.path.join(dir_name, name, sub_dir_name)
-        all_files[name] += os.listdir(full_path)
+        paths = os.path.join(dir_name, name, sub_dir_name)
+        for file in os.listdir(paths):
+            full_paths = os.path.join(paths, file)
+            all_files[name].append(full_paths)
     return all_files
 
 
