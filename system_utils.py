@@ -25,6 +25,36 @@ def get_files(dir_name):
     return all_files
 
 
+def get_files_paths(dir_name, sub_dir_name):
+    """Returns a dictionary like object using baterial genera
+    as keys and a list of path to fasta fileas as values.
+    Inputs:
+        dir_name: directory name
+        sub_dir_name : sub directory name
+    Outputs:
+        dictionary: with genera name and a list of 
+                    files.
+    
+    Example:
+    dir is like: Data/bacteria_splitted/Mycolicibacillus/chromosomes
+                 Data/bacteria_splitted/Mycolicibacillus/plasmids (if the case)
+    dirname: 'Data/bacteria_splitted'
+    sub_dir: 'chromosomes'
+    fasta_dicts = get_files(dir_name, 'chromosomes')
+    fasta_dicts['Mycolicibacillus']
+    ['NZ_AP022594.1_Mycolicibacillus_koreensis_strain_JCM_19956.fna.gz']
+    """
+    # create a list of file and sub directories
+    # names in the given directory
+    spc_names = sorted(os.listdir(dir_name))
+    all_files = defaultdict(list)
+    for name in spc_names:
+        all_files[name] = all_files.get(name, [])
+        full_path = os.path.join(dir_name, name, sub_dir_name)
+        all_files[name] += os.listdir(full_path)
+    return all_files
+
+
 def get_names(path):
     return [(file.split('/')[3][:-3]) for file in get_files(path)]
 
