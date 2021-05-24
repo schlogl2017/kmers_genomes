@@ -317,3 +317,27 @@ def shuffle_difreq(seq):
         shuff_seq.append(weighted_choice(freqs[shuff_seq[-1]].items()))
 
     return "".join(shuff_seq)
+
+
+def count_mers(sequence, alphabet, kmin, kmax):
+    """Returns a dictionary like object with kmers as keys and counts
+    as values.
+    Inputs:
+        sequence - a sequence as a string
+        alphabet - a sequence as string with all 
+                   the allowed charcaters in the kmer
+        kmin - integer represent the minimum kmerlength 
+        kmax - integer represent the maximun kmer length 
+    kmer = s substring of the sequence with length kmin<k<kmax)
+    """
+    kmer_list = get_all_possible_kmers(alphabet, kmin, kmax)
+    kmer_from_seq = get_kmers_from_sequence(sequence, alphabet, kmin, kmax)
+    counts = defaultdict(int)
+    for kmer in kmer_list:
+        counts[kmer] = counts.get(kmer, 0)
+    for kmer in kmer_from_seq:
+        if kmer not in counts:
+            counts[kmer] = 1
+        else:
+            counts[kmer] += 1
+    return counts
