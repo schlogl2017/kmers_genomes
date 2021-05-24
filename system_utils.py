@@ -25,6 +25,16 @@ def get_files(dir_name):
     return all_files
 
 
+def get_lengths(fasta_dict):
+    seq_len = defaultdict(int)
+    file_names = list(fasta_dict.values())[0]
+    names = [os.path.splitext(os.path.split(name)[-1])[0] for name in file_names]
+    for name, filename in zip(names, file_names):
+        for n, seq in parse_fasta(filename):
+            seq_len[name] = seq_len.get(name, 0) + len(seq)
+    return seq_len
+
+
 def get_files_paths(dir_name, sub_dir_name):
     """Returns a dictionary like object using baterial genera
     as keys and a list of path to fasta fileas as values.
